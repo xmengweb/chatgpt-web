@@ -1,0 +1,14 @@
+/* 当屏幕宽度小于 768px 时，设置字体大小为 14px */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* 当屏幕宽度大于等于 768px 时，设置字体大小为 16px */
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
