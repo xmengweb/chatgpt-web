@@ -1,8 +1,8 @@
 <script setup lang='ts'>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onActivated, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import typeSelect from './components/typeSelect.vue'
@@ -46,6 +46,7 @@ const conversationList = computed(() => dataSources.value.filter(item => (!item.
 
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
+const curModel = ref('gpt3')
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -109,6 +110,7 @@ async function onConversation() {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
+        model: curModel.value,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
           const xhr = event.target
@@ -151,7 +153,7 @@ async function onConversation() {
     }
     await fetchChatAPIOnce()
     // 在这里写
-    await authStore.useCodeOnce('gpt')
+    await authStore.useCodeOnce(curModel.value)
   }
   catch (error: any) {
     const errorMessage = error?.message ?? t('common.wrong')
@@ -449,7 +451,28 @@ const footerClass = computed(() => {
   return classes
 })
 
+function handleSwitch() {
+  if (loading.value)
+    return
+
+  dialog.warning({
+    title: '切换对话模型',
+    content: `确定要切换为${curModel.value === 'gpt3' ? 'GPT4' : 'GPT3'}吗`,
+    positiveText: t('common.yes'),
+    negativeText: t('common.no'),
+    onPositiveClick: () => {
+      if (curModel.value === 'gpt3')
+        curModel.value = 'gpt4'
+      else curModel.value = 'gpt3'
+      ms.success('切换成功')
+    },
+  })
+}
+
 onMounted(() => {
+  scrollToBottom()
+})
+onActivated(() => {
   scrollToBottom()
 })
 
@@ -506,8 +529,6 @@ onUnmounted(() => {
     <footer :class="footerClass">
       <div class="w-full max-w-screen-xl m-auto">
         <div class="flex items-center justify-between space-x-2">
-<<<<<<< HEAD
-=======
           <HoverButton @click="handleSwitch">
             <span class="text-xl dark:text-white" style="line-height: 0;">
               <NIcon v-if="curModel === 'gpt3'">
@@ -547,7 +568,6 @@ onUnmounted(() => {
               </NIcon>
             </span>
           </HoverButton>
->>>>>>> 61d799e (更新)
           <HoverButton @click="handleClear">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:delete-bin-line" />

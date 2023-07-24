@@ -27,6 +27,7 @@ if (!process.env.OPENAI_API_KEY && !process.env.OPENAI_ACCESS_TOKEN)
   throw new Error('Missing OPENAI_API_KEY or OPENAI_ACCESS_TOKEN environment variable')
 
 let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
+let api2: ChatGPTAPI | ChatGPTUnofficialProxyAPI
 
 export async function createApi(apiKey: string, apiModel: string, baseUrl: string) {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
@@ -61,8 +62,6 @@ export async function createApi(apiKey: string, apiModel: string, baseUrl: strin
   api = new ChatGPTAPI({ ...options })
   apiModel = 'ChatGPTAPI'
 }
-<<<<<<< HEAD
-=======
 export async function createApi2(apiKey: string, apiModel: string, baseUrl: string) {
   // More Info: https://github.com/transitive-bullshit/chatgpt-api
   const OPENAI_API_MODEL = apiModel
@@ -96,7 +95,6 @@ export async function createApi2(apiKey: string, apiModel: string, baseUrl: stri
   api2 = new ChatGPTAPI({ ...options })
   apiModel = 'ChatGPTAPI'
 }
->>>>>>> 61d799e (更新)
 
 async function chatReplyProcess(
   message: string,
@@ -114,6 +112,38 @@ async function chatReplyProcess(
     }
 
     const response = await api.sendMessage(message, {
+      ...options,
+      onProgress: (partialResponse) => {
+        process?.(partialResponse)
+      },
+    })
+
+    return sendResponse({ type: 'Success', data: response })
+  }
+  catch (error: any) {
+    const code = error.statusCode
+    global.console.log(error)
+    if (Reflect.has(ErrorCodeMessage, code))
+      return sendResponse({ type: 'Fail', message: ErrorCodeMessage[code] })
+    return sendResponse({ type: 'Fail', message: error.message ?? 'Please check the back-end console' })
+  }
+}
+async function chatReplyProcess2(
+  message: string,
+  lastContext?: { conversationId?: string; parentMessageId?: string },
+  process?: (chat: ChatMessage) => void,
+) {
+  try {
+    let options: SendMessageOptions = { timeoutMs }
+
+    if (lastContext) {
+      if (apiModel === 'ChatGPTAPI')
+        options = { parentMessageId: lastContext.parentMessageId }
+      else
+        options = { ...lastContext }
+    }
+
+    const response = await api2.sendMessage(message, {
       ...options,
       onProgress: (partialResponse) => {
         process?.(partialResponse)
@@ -148,4 +178,4 @@ async function chatConfig() {
 
 export type { ChatContext, ChatMessage }
 
-export { chatReplyProcess, chatConfig }
+export { chatReplyProcess, chatReplyProcess2, chatConfig }

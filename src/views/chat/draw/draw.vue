@@ -77,8 +77,10 @@ function changeUrl(url: string) {
     <!-- 结果页面 -->
     <resultImgView v-if="!isShowType" :uuid="uuid" :data-sources="dataSources" style="height: calc(100% - 73px);" />
     <div v-if="isLoading" class="loading-mask">
-      <div class="loading-spinner" style="transform: translateY(-60%);">
-        <NImage :src="changeUrl(dataSources.slice(-1)[0].text)" width="230" fallback-src="https://i.imgloc.com/2023/05/24/VDwUlP.gif" />
+      <div class="loading-spinner">
+        <div style="height: 90%;margin: 0 auto;">
+          <NImage :src="changeUrl(dataSources.slice(-1)[0].text)" fallback-src="https://i.imgloc.com/2023/05/24/VDwUlP.gif" object-fit="contain" style="width: 100%;height: 100%;justify-content: center;" />
+        </div>
         <h2>正在努力生成中，一般一张图1-2分钟哦...</h2>
         <NProgress type="line" status="info" processing indicator-placement="inside" :percentage="progress" style="width: 30%;margin: auto;" />
         <!-- <h3 v-if="progress <= 10 && !dataSources.slice(-1)[0].isBigger">
@@ -114,9 +116,9 @@ function changeUrl(url: string) {
 	transition: opacity var(--el-transition-duration);
   z-index: 0;
 	.loading-spinner{
-    top: 50%;
-    margin-top:-21px;
-    width: 100%;
+		top: 100px;
+    width: calc(100% - 160px);
+		height: calc(100% - 100px);
     text-align: center;
     position: absolute;
 	}

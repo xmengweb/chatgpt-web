@@ -8,7 +8,7 @@ import sharp from 'sharp'
 import xlsx from 'xlsx'
 import { MD5 } from 'crypto-js'
 import type { ChatContext, ChatMessage } from './chatgpt'
-import { chatConfig, chatReplyProcess, createApi } from './chatgpt'
+import { chatConfig, chatReplyProcess, chatReplyProcess2, createApi, createApi2 } from './chatgpt'
 import { auth, verifyToken } from './middleware/auth'
 import { database } from './utils/mysql'
 import type { IRequestCallBody } from './utils/draw'
@@ -60,14 +60,8 @@ function generate_activation_code() {
 async function getKeyAll() {
   const sql = 'SELECT type,token,bl,isUse,baseUrl FROM system GROUP BY id'
   const resData: any = await database.search(sql)
-<<<<<<< HEAD
-  if (resData[2].token && resData[2].isUse)
-    createApi(resData[2].token, 'gpt-4', resData[2].baseUrl)
-  else createApi(resData[0].token, 'gpt-3.5-turbo', resData[0].baseUrl)
-=======
   createApi2(resData[2].token, 'gpt-4-0613', resData[2].baseUrl)
   createApi(resData[0].token, 'gpt-3.5-turbo-16k', resData[0].baseUrl)
->>>>>>> 61d799e (更新)
   drawClient.token = resData[1].token
 }
 getKeyAll()
@@ -125,17 +119,30 @@ function checkRequestLimit(req, res, next) {
 
 router.post('/chat-process', auth, logAccess, async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
-
   try {
-    const { prompt, options = {} } = req.body as { prompt: string; options?: ChatContext }
+    const { prompt, options = {}, model } = req.body as { prompt: string; options?: ChatContext; model: string }
+    const sql = 'SELECT type,token,bl,isUse,baseUrl FROM system GROUP BY id'
+    const resData: any = await database.search(sql)
+    if (model === 'gpt3' && !resData[0].isUse)
+      throw new Error('管理员未开启GPT3.5对话功能')
+    else if (model === 'gpt4' && !resData[2].isUse)
+      throw new Error('管理员未开启GPT4对话功能')
     let firstChunk = true
-    await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
-      res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
-      firstChunk = false
-    })
+    if (model === 'gpt4') {
+      await chatReplyProcess2(prompt, options, (chat: ChatMessage) => {
+        res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+        firstChunk = false
+      })
+    }
+    else {
+      await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
+        res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+        firstChunk = false
+      })
+    }
   }
   catch (error) {
-    res.write(JSON.stringify(error))
+    res.write(error.message ? JSON.stringify({ message: error.message }) : JSON.stringify(error))
   }
   finally {
     res.end()
@@ -309,7 +316,7 @@ router.post('/codeUse', async (req, res) => {
     let money = 1
     if (type === 'draw')
       money = resInfo.list[1].bl
-    else if (resInfo.list[2].isUse && resInfo.list[2].token)
+    else if (type === 'gpt4')
       money = resInfo.list[2].bl
     else money = resInfo.list[0].bl
     const sql = `UPDATE codeForm SET remain = remain-${money} WHERE code = ?`
@@ -441,20 +448,15 @@ router.post('/updateArguments', auth, async (req, res) => {
   })
   const resData = await Promise.all(sendAll)
   if (gpt4.api && gpt4.isUse)
-<<<<<<< HEAD
-    createApi(gpt4.api, 'gpt-4', gpt4.baseUrl)
-  else createApi(gpt3.api, 'gpt-3.5-turbo', gpt3.baseUrl)
-=======
     createApi2(gpt4.api, 'gpt-4-0613', gpt4.baseUrl)
   else createApi(gpt3.api, 'gpt-3.5-turbo-16k', gpt3.baseUrl)
->>>>>>> 61d799e (更新)
   drawClient.token = draw.api
   res.json({ code: 200, message: resData })
 })
 function getRandomNumber(max) {
   return Math.floor(Math.random() * max)
 }
-router.post('/getPrompt', auth, checkRequestLimit, async (req, res) => {
+router.post('/getPrompt', checkRequestLimit, async (req, res) => {
   const { arr } = req.body
   let str = ''
   if (arr[0] === 1) {
