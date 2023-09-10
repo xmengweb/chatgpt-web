@@ -39,7 +39,7 @@ const progress = computed(() => {
 const isShowType = computed(() => !dataSources.value.length)
 const createType = ref<number>(0)
 function changeUrl(url: string) {
-  if (url === 'https://i.imgloc.com/2023/05/24/VDwUlP.gif')
+  if (url === 'https://x.imgs.ovh/x/2023/09/10/64fd61af122a5.gif')
     return url
   else return url.replace('https://cdn.discordapp.com/', import.meta.env.VITE_IMG_PROXY)
 }
@@ -79,7 +79,7 @@ function changeUrl(url: string) {
     <div v-if="isLoading" class="loading-mask">
       <div class="loading-spinner">
         <div style="height: 90%;margin: 0 auto;">
-          <NImage :src="changeUrl(dataSources.slice(-1)[0].text)" fallback-src="https://i.imgloc.com/2023/05/24/VDwUlP.gif" object-fit="contain" style="width: 100%;height: 100%;justify-content: center;" />
+          <NImage :src="changeUrl(dataSources.slice(-1)[0].text)" fallback-src="https://x.imgs.ovh/x/2023/09/10/64fd61af122a5.gif" object-fit="contain" style="width: 100%;height: 100%;justify-content: center;" />
         </div>
         <h2>正在努力生成中，一般一张图1-2分钟哦...</h2>
         <NProgress type="line" status="info" processing indicator-placement="inside" :percentage="progress" style="width: 30%;margin: auto;" />

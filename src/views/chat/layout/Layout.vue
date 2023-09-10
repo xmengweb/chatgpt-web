@@ -17,7 +17,7 @@ const { deleteDraw } = useChat()
 router.replace({ name: chatStore.getTypeByUuid(+chatStore.active!) ? 'Draw' : 'Chat', params: { uuid: chatStore.active } })
 
 chatStore.chat.forEach((value) => {
-  if (value.data[value.data.length - 1]?.loading && value.data[value.data.length - 1].text === 'https://i.imgloc.com/2023/05/24/VDwUlP.gif')
+  if (value.data[value.data.length - 1]?.loading && value.data[value.data.length - 1].text === 'https://x.imgs.ovh/x/2023/09/10/64fd61af122a5.gif')
     deleteDraw(value.uuid, value.data.length - 1)
 })
 

@@ -116,10 +116,8 @@ async function onConversation() {
           const xhr = event.target
           const { responseText } = xhr
           // Always process the final line
-          const lastIndex = responseText.lastIndexOf('\n')
-          let chunk = responseText
-          if (lastIndex !== -1)
-            chunk = responseText.substring(lastIndex)
+          const objArray = responseText.split('\n').filter(Boolean)
+          const chunk = objArray[objArray.length - 2]
           try {
             const data = JSON.parse(chunk)
             updateChat(
@@ -127,11 +125,11 @@ async function onConversation() {
               dataSources.value.length - 1,
               {
                 dateTime: new Date().toLocaleString(),
-                text: lastText + data.text ?? '',
+                text: lastText + (data.text ?? ''),
                 inversion: false,
                 error: false,
                 loading: false,
-                conversationOptions: { conversationId: data.conversationId, parentMessageId: data.id },
+                conversationOptions: { conversationId: data.id, parentMessageId: data.parentMessageId },
                 requestOptions: { prompt: message, options: { ...options } },
               },
             )
@@ -279,6 +277,7 @@ async function onRegenerate(index: number) {
           }
         },
       })
+      updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
     }
     await fetchChatAPIOnce()
   }

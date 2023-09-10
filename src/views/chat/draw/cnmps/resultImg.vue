@@ -96,7 +96,7 @@ async function fetchImgInfo(taskId: string) {
 async function fetchPackage(type: string, imageId: string, index = 0, time = 0) {
   addDraw(+uuid, {
     dateTime: new Date().toLocaleString(),
-    text: 'https://i.imgloc.com/2023/05/24/VDwUlP.gif',
+    text: 'https://x.imgs.ovh/x/2023/09/10/64fd61af122a5.gif',
     prompt: dataSources.slice(-1)[0].form?.prompt,
     taskId: '',
     loading: true,
@@ -188,7 +188,7 @@ async function submit(time = 0) {
   const last = dataSources.slice(-1)[0]
   addDraw(+uuid, {
     dateTime: new Date().toLocaleString(),
-    text: 'https://i.imgloc.com/2023/05/24/VDwUlP.gif',
+    text: 'https://x.imgs.ovh/x/2023/09/10/64fd61af122a5.gif',
     prompt: inputCreate.value,
     taskId: '',
     loading: true,

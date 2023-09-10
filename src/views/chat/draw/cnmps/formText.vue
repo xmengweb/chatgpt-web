@@ -64,7 +64,7 @@ function handleClick(e: MouseEvent) {
 async function fetchPackage(time = 0) {
   addDraw(+props.uuid, {
     dateTime: new Date().toLocaleString(),
-    text: 'https://i.imgloc.com/2023/05/24/VDwUlP.gif',
+    text: 'https://x.imgs.ovh/x/2023/09/10/64fd61af122a5.gif',
     prompt: formValue.value.prompt,
     taskId: '',
     loading: true,
